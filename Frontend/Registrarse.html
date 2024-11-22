@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Cuenta</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <!-- Contenedor principal del formulario de registro -->
+    <div id="register-container">
+      <h2>Crear Cuenta</h2>
+      
+      <!-- Formulario de registro -->
+      <form id="register-form">
+        <!-- Campo de nombre de usuario -->
+        <input type="text" id="usuario" name="usuario" placeholder="Nombre de usuario" required>
+
+        <!-- Campo de correo electrónico -->
+        <input type="email" id="correo" name="correo" placeholder="Correo electrónico" required>
+
+        <!-- Campo de contraseña -->
+        <input type="password" id="contrasena" name="contrasena" placeholder="Contraseña" required>
+
+        <!-- Campo de confirmación de contraseña -->
+        <input type="password" id="confirm-contrasena" name="confirm-contrasena" placeholder="Confirmar contraseña" required>
+
+        <!-- Botón de registro -->
+        <input type="submit" value="Registrarse">
+      </form>
+
+      <!-- Enlace para iniciar sesión -->
+      <p>¿Ya tienes cuenta? <a href="login.html">Inicia sesión aquí</a></p>
+    </div>
+
+    <script>
+      document.getElementById("register-form").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const usuario = document.getElementById("usuario").value;
+        const correo = document.getElementById("correo").value;
+        const contrasena = document.getElementById("contrasena").value;
+        const confirmContrasena = document.getElementById("confirm-contrasena").value;
+
+        // Validar que todos los campos estén llenos
+        if (!usuario || !correo || !contrasena || !confirmContrasena) {
+          alert("Todos los campos son obligatorios");
+          return;
+        }
+
+        // Verificar que las contraseñas coinciden
+        if (contrasena !== confirmContrasena) {
+          alert("Las contraseñas no coinciden");
+          return;
+        }
+
+        // Enviar los datos al servidor
+        fetch('/registrarse', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ usuario, correo, contrasena })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert("Cuenta creada con éxito");
+            window.location.href = "login.html"; // Redirigir al login
+          } else {
+            alert(data.error); // Mostrar error si lo hay
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert("Hubo un error al registrar la cuenta");
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Página de Búsqueda de Empleo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div id="logo-container">
+            <img id="logo" src="images/cat.png" alt="Logo de la Empresa">
+            <span id="site-name">
+                <a href="index.html">JOB RECRUE</a>
+            </span>
+        </div>
+        <div id="auth-links">
+            <a id="login" href="login.html">Iniciar Sesión</a>
+            <a id="register" href="Registrarse.html">Registrarse</a>
+        </div>
+    </header>
+
+    <div id="search">
+        <h2>Buscar Empleo</h2>
+        <form id="searchForm" action="buscar.html" method="GET">
+            <input type="text" name="categoria" list="Categoria" class="search-field" placeholder="Categoría">
+            <datalist id="Categoria">
+                <option>Desarrollador</option>
+                <option>Diseñador Gráfico</option>
+                <option>Administrador de Redes</option>
+                <option>Desarrollador Backend</option>
+                <option>Diseñador UX/UI</option>
+                <option>Ingeniero de Datos</option>
+                <option>Consultor IT</option>
+                <option>Administrador de Sistemas</option>
+            </datalist>
+
+            <input type="text" name="area" list="Area" class="search-field" placeholder="Área">
+            <datalist id="Area">
+                <option>Tecnología</option>
+                <option>Creativo</option>
+                <option>IT</option>
+            </datalist>
+
+            <input type="text" name="ubicacion" list="Ubicacion" class="search-field" placeholder="Ubicación">
+            <datalist id="Ubicacion">
+                <option>Madrid</option>
+                <option>Barcelona</option>
+                <option>Valencia</option>
+                <option>Sevilla</option>
+                <option>Bilbao</option>
+                <option>Remoto</option>
+                <option>Oficina</option>
+            </datalist>
+
+            <input type="text" name="salario" list="Salario" class="search-field" placeholder="Salario">
+            <datalist id="Salario">
+                <option>Menos de 30.000</option>
+                <option>Entre 30.000 y 60.000</option>
+                <option>Más de 60.000</option>
+            </datalist>
+
+            <input type="submit" value="Buscar" class="btn-red">
+        </form>
+    </div>
+
+    <div id="job-list" class="clearfix">
+        <h2>Empleos Destacados</h2>
+        <!-- Aquí se cargarán las ofertas de empleo -->
+    </div>
+
+    <!-- Paginación -->
+    <div id="pagination">
+        <button id="prevPage" onclick="changePage('prev')">Página Anterior</button>
+        <button id="nextPage" onclick="changePage('next')">Página Siguiente</button>
+    </div>
+
+    <footer>
+        <p>Contáctanos</p>
+        <div id="social-links">
+            <a id="social" href="login.html">Redes sociales</a>
+        </div>
+    </footer>
+
+    <script>
+        let currentPage = 1; // Página inicial
+
+        // Función para manejar el cambio de página
+        function changePage(direction) {
+            if (direction === 'prev' && currentPage > 1) {
+                currentPage--; // Disminuir página
+            } else if (direction === 'next') {
+                currentPage++; // Aumentar página
+            }
+            searchJobs(); // Realizar la búsqueda con la página actual
+        }
+
+        // Función para realizar la búsqueda
+        function searchJobs() {
+            const categoria = document.querySelector('[name="categoria"]').value;
+            const area = document.querySelector('[name="area"]').value;
+            const ubicacion = document.querySelector('[name="ubicacion"]').value;
+            const salario = document.querySelector('[name="salario"]').value;
+
+            // Construir la URL con los parámetros de búsqueda
+            const url = `/buscar?categoria=${categoria}&area=${area}&ubicacion=${ubicacion}&salario=${salario}&page=${currentPage}`;
+
+            // Hacer la solicitud GET a la API
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    // Mostrar los resultados
+                    const jobList = document.getElementById("job-list");
+                    jobList.innerHTML = ''; // Limpiar los resultados previos
+
+                    // Si no hay resultados
+                    if (data.length === 0) {
+                        jobList.innerHTML = '<p>No se encontraron empleos.</p>';
+                        document.getElementById("pagination").style.display = "none"; // Ocultar paginación si no hay resultados
+                    } else {
+                        document.getElementById("pagination").style.display = "block"; // Mostrar paginación
+                    }
+
+                    // Mostrar los nuevos resultados
+                    data.forEach(job => {
+                        const jobDiv = document.createElement('div');
+                        jobDiv.classList.add('job');
+                        jobDiv.innerHTML = `
+                            <h3>${job.titulo || 'Sin título'}</h3>
+                            <p><strong>Categoría:</strong> ${job.categoria || 'No especificada'}</p>
+                            <p><strong>Área:</strong> ${job.area || 'No especificada'}</p>
+                            <p><strong>Ubicación:</strong> ${job.ubicacion || 'No especificada'}</p>
+                            <p><strong>Salario:</strong> $${job.salario || 'No especificado'}</p>
+                        `;
+                        jobList.appendChild(jobDiv);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error al obtener los resultados:', error);
+                });
+        }
+
+        // Evitar la recarga de página al enviar el formulario
+        document.getElementById("searchForm").addEventListener("submit", function (e) {
+            e.preventDefault(); // Evita que se recargue la página al enviar el formulario
+            currentPage = 1; // Reiniciar página al hacer nueva búsqueda
+            searchJobs(); // Realizar la búsqueda inicial
+        });
+
+        // Llamada inicial a la búsqueda para cargar resultados al cargar la página
+        searchJobs();
+    </script>
+</body>
+</html>

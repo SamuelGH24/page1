@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <!-- Contenedor principal del formulario de inicio de sesión -->
+    <div id="login-container">
+      <h2>Iniciar Sesión</h2>
+      
+      <!-- Formulario de inicio de sesión -->
+      <form id="login-form">
+        <!-- Campo de nombre de usuario -->
+        <input type="text" id="usuario" name="usuario" placeholder="Nombre de usuario" required>
+
+        <!-- Campo de contraseña -->
+        <input type="password" id="contrasena" name="contrasena" placeholder="Contraseña" required>
+
+        <!-- Botón de inicio de sesión -->
+        <input type="submit" value="Iniciar Sesión">
+      </form>
+
+      <!-- Enlace para registrarse -->
+      <p>¿No tienes cuenta? <a href="registrarse.html">Regístrate aquí</a></p>
+    </div>
+
+    <script>
+      document.getElementById("login-form").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const usuario = document.getElementById("usuario").value;
+        const contrasena = document.getElementById("contrasena").value;
+
+        // Validar que ambos campos estén llenos
+        if (!usuario || !contrasena) {
+          alert("Por favor, completa todos los campos.");
+          return;
+        }
+
+        // Enviar los datos al servidor para verificar las credenciales
+        fetch('/iniciar-sesion', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ usuario, contrasena })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert("Inicio de sesión exitoso");
+            window.location.href = "index.html"; // Redirigir al inicio o a otra página
+          } else {
+            alert(data.error); // Mostrar error si lo hay
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert("Hubo un error al iniciar sesión.");
+        });
+      });
+    </script>
+  </body>
+</html>
